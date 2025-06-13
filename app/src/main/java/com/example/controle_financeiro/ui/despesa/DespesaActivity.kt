@@ -1,4 +1,4 @@
-package com.example.controlefinanceiro.ui.despesa
+package com.example.controle_financeiro.ui.despesa
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

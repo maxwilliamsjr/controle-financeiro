@@ -12,6 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Controlefinanceiro"
         tools:targetApi="31">
+
+        <!-- MainActivity usa Compose e tema Material3 -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -19,10 +21,21 @@
             android:theme="@style/Theme.Controlefinanceiro">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Activities que usam AppCompat precisam de tema AppCompat -->
+        <activity
+            android:name="com.example.controle_financeiro.ui.despesa.DespesaActivity"
+            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
+        <activity
+            android:name="com.example.controle_financeiro.ui.renda.RendaActivity"
+            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
+        <activity
+            android:name="com.example.controle_financeiro.ui.planejamento.PlanejamentoActivity"
+            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
+
     </application>
 
 </manifest>

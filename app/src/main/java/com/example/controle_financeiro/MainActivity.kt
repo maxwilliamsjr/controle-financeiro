@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.controle_financeiro.ui.theme.ControlefinanceiroTheme
 import com.example.controle_financeiro.ui.screens.HomeScreen
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ControlefinanceiroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // 🔧 Passa o contexto para poder abrir novas activities
+                    // Context está correto aqui para abrir outras Activities
                     HomeScreen(modifier = Modifier.padding(innerPadding), context = this)
                 }
             }

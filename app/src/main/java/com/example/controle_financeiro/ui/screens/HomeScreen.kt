@@ -11,9 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.controlefinanceiro.ui.despesa.DespesaActivity
-import com.example.controlefinanceiro.ui.planejamento.PlanejamentoActivity
-import com.example.controlefinanceiro.ui.renda.RendaActivity
+import com.example.controle_financeiro.ui.despesa.DespesaActivity
+import com.example.controle_financeiro.ui.planejamento.PlanejamentoActivity
+import com.example.controle_financeiro.ui.renda.RendaActivity
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier, context: Context) {
