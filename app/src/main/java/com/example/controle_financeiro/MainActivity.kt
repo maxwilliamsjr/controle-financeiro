@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.controle_financeiro.ui.theme.ControlefinanceiroTheme
+import com.example.controle_financeiro.ui.screens.HomeScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +22,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ControlefinanceiroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    // 🔧 Passa o contexto para poder abrir novas activities
+                    HomeScreen(modifier = Modifier.padding(innerPadding), context = this)
                 }
             }
         }
