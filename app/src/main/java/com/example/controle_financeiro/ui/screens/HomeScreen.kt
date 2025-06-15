@@ -1,19 +1,19 @@
 package com.example.controle_financeiro.ui.screens
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.controle_financeiro.ui.despesa.DespesaActivity
+import com.example.controle_financeiro.LoginActivity
+import com.example.controle_financeiro.ui.despesa.MenuDespesasActivity
 import com.example.controle_financeiro.ui.planejamento.PlanejamentoActivity
 import com.example.controle_financeiro.ui.renda.RendaActivity
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier, context: Context) {
@@ -25,8 +25,9 @@ fun HomeScreen(modifier: Modifier = Modifier, context: Context) {
     ) {
         Text(text = "Bem-vindo ao controle financeiro")
 
+        // ✅ Atualizado para abrir MenuDespesasActivity
         Button(onClick = {
-            val intent = Intent(context, DespesaActivity::class.java)
+            val intent = Intent(context, MenuDespesasActivity::class.java)
             context.startActivity(intent)
         }) {
             Text(text = "Gerenciar Despesas")
@@ -44,6 +45,15 @@ fun HomeScreen(modifier: Modifier = Modifier, context: Context) {
             context.startActivity(intent)
         }) {
             Text(text = "Planejamento Mensal")
+        }
+
+        Button(onClick = {
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(context, LoginActivity::class.java)
+            context.startActivity(intent)
+            (context as? Activity)?.finish()
+        }) {
+            Text(text = "Sair")
         }
     }
 }

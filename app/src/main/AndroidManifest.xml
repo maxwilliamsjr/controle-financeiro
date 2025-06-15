@@ -35,6 +35,12 @@
         <activity
             android:name="com.example.controle_financeiro.ui.planejamento.PlanejamentoActivity"
             android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".ui.despesa.MenuDespesasActivity" />
+        <activity android:name=".ui.despesa.ListarDespesasActivity" />
+        <activity android:name="com.example.controle_financeiro.ui.despesa.EditarDespesaActivity" />
+        <activity android:name=".ui.categoria.CadastroCategoriaActivity" />
+        <activity android:name=".ui.metodopagamento.CadastroMetodoPagamentoActivity" />
 
     </application>
 
