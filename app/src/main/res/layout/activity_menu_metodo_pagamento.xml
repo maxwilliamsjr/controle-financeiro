@@ -3,18 +3,19 @@
     android:padding="24dp"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <EditText
-        android:id="@+id/editNomeMetodo"
-        android:hint="Nome do Método de Pagamento"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/btnSalvarMetodo"
-        android:text="Salvar Método"
+        android:id="@+id/btnCadastrarMetodo"
+        android:text="Cadastrar Método de Pagamento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnListarMetodos"
+        android:text="Listar Métodos de Pagamento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

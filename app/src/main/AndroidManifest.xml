@@ -35,12 +35,33 @@
         <activity
             android:name="com.example.controle_financeiro.ui.planejamento.PlanejamentoActivity"
             android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
+
+        <!-- Login -->
         <activity android:name=".LoginActivity" />
+
+        <!-- Despesa -->
         <activity android:name=".ui.despesa.MenuDespesasActivity" />
         <activity android:name=".ui.despesa.ListarDespesasActivity" />
-        <activity android:name="com.example.controle_financeiro.ui.despesa.EditarDespesaActivity" />
-        <activity android:name=".ui.categoria.CadastroCategoriaActivity" />
-        <activity android:name=".ui.metodopagamento.CadastroMetodoPagamentoActivity" />
+        <activity android:name=".ui.despesa.EditarDespesaActivity" />
+
+
+        <!-- Categoria -->
+        <activity android:name=".ui.categoria.MenuCategoriaActivity" />
+        <activity android:name=".ui.categoria.CategoriaActivity" />
+        <activity android:name=".ui.categoria.ListarCategoriaActivity" />
+        <activity android:name=".ui.categoria.EditarCategoriaActivity" />
+
+        <!-- Método de Pagamento -->
+        <activity android:name=".ui.metodopagamento.MenuMetodoPagamentoActivity" />
+        <activity android:name=".ui.metodopagamento.MetodoPagamentoActivity" />
+        <activity android:name=".ui.metodopagamento.ListarMetodoPagamentoActivity" />
+        <activity android:name=".ui.metodopagamento.EditarMetodoPagamentoActivity" />
+
+        <!-- Gerenciar Rendas -->
+        <activity android:name=".ui.renda.MenuRendaActivity" />
+        <activity android:name=".ui.renda.ListarRendaActivity" />
+        <activity android:name=".ui.renda.EditarRendaActivity" />
+
 
     </application>
 

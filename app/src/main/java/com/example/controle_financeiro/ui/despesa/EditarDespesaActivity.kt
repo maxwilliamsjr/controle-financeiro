@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class EditarDespesaActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var editNome: EditText
     private lateinit var editDescricao: EditText
     private lateinit var editValor: EditText
     private lateinit var editData: EditText
@@ -27,6 +28,7 @@ class EditarDespesaActivity : AppCompatActivity() {
 
         firestore = FirebaseFirestore.getInstance()
 
+        editNome = findViewById(R.id.editNome)
         editDescricao = findViewById(R.id.editDescricao)
         editValor = findViewById(R.id.editValor)
         editData = findViewById(R.id.editData)
@@ -55,6 +57,7 @@ class EditarDespesaActivity : AppCompatActivity() {
             .addOnSuccessListener { doc ->
                 val despesa = doc.toObject(Despesa::class.java)
                 if (despesa != null) {
+                    editNome.setText(despesa.nome)
                     editDescricao.setText(despesa.descricao)
                     editValor.setText(despesa.valor.toString())
                     editData.setText(despesa.data)
@@ -71,6 +74,7 @@ class EditarDespesaActivity : AppCompatActivity() {
     private fun atualizarDespesa() {
         val novaDespesa = Despesa(
             id = idDespesa!!,
+            nome = editNome.text.toString(),
             descricao = editDescricao.text.toString(),
             valor = editValor.text.toString().toDoubleOrNull() ?: 0.0,
             data = editData.text.toString(),

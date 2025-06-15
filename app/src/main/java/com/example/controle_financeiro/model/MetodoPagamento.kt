@@ -1,8 +1,6 @@
 package com.example.controle_financeiro.model
 
-sealed class MetodoPagamento {
-    object Dinheiro : MetodoPagamento()
-    data class CartaoCredito(val cartao: Cartao) : MetodoPagamento()
-    object Pix : MetodoPagamento()
-    object Debito : MetodoPagamento()
-}
+data class MetodoPagamento(
+    val id: String = "",
+    val nome: String = ""
+)

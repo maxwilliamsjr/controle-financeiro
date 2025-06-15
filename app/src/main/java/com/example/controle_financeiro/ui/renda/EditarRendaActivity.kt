@@ -16,21 +16,27 @@ import com.example.controle_financeiro.model.Categoria
 import com.example.controle_financeiro.model.Periodicidade
 import com.example.controle_financeiro.model.Renda
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.*
 
-class RendaActivity : ComponentActivity() {
+class EditarRendaActivity : ComponentActivity() {
     private val firestore = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val rendaId = intent.getStringExtra("rendaId")
+        if (rendaId == null) {
+            finish() // fecha se não tiver id
+            return
+        }
+
         setContent {
-            RendaScreen()
+            EditarRendaScreen(rendaId)
         }
     }
 
     @Composable
-    fun RendaScreen() {
+    fun EditarRendaScreen(rendaId: String) {
         val context = LocalContext.current
+
         var tipo by remember { mutableStateOf("") }
         var fontePagadora by remember { mutableStateOf("") }
         var valor by remember { mutableStateOf("") }
@@ -41,13 +47,46 @@ class RendaActivity : ComponentActivity() {
         var mesInicio by remember { mutableStateOf("") }
         var mesFim by remember { mutableStateOf("") }
 
+        var isLoading by remember { mutableStateOf(true) }
+
+        // Busca a renda no Firestore uma vez
+        LaunchedEffect(rendaId) {
+            firestore.collection("rendas").document(rendaId).get()
+                .addOnSuccessListener { doc ->
+                    val renda = doc.toObject(Renda::class.java)
+                    if (renda != null) {
+                        tipo = renda.tipo
+                        fontePagadora = renda.fontePagadora
+                        valor = renda.valor.toString()
+                        dataRecebimento = renda.dataRecebimento
+                        categoria = renda.categoria.nome
+                        descricao = renda.descricao ?: ""
+                        diaFixo = renda.periodicidade?.diaFixo?.toString() ?: ""
+                        mesInicio = renda.periodicidade?.mesInicio?.toString() ?: ""
+                        mesFim = renda.periodicidade?.mesFim?.toString() ?: ""
+                    }
+                    isLoading = false
+                }
+                .addOnFailureListener {
+                    Toast.makeText(context, "Erro ao carregar renda", Toast.LENGTH_SHORT).show()
+                    isLoading = false
+                }
+        }
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Cadastrar Renda", style = MaterialTheme.typography.headlineSmall)
+            Text("Editar Renda", style = MaterialTheme.typography.headlineSmall)
 
             OutlinedTextField(
                 value = tipo,
@@ -125,8 +164,8 @@ class RendaActivity : ComponentActivity() {
                     return@Button
                 }
 
-                val renda = Renda(
-                    id = UUID.randomUUID().toString(),
+                val rendaEditada = Renda(
+                    id = rendaId,
                     tipo = tipo,
                     fontePagadora = fontePagadora,
                     valor = valor.toDouble(),
@@ -140,15 +179,15 @@ class RendaActivity : ComponentActivity() {
                     )
                 )
 
-                firestore.collection("rendas").document(renda.id).set(renda)
+                firestore.collection("rendas").document(rendaId).set(rendaEditada)
                     .addOnSuccessListener {
-                        Toast.makeText(context, "Renda cadastrada com sucesso", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Renda atualizada com sucesso", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(context, "Erro ao cadastrar", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
                     }
             }) {
-                Text("Salvar")
+                Text("Salvar Alterações")
             }
         }
     }

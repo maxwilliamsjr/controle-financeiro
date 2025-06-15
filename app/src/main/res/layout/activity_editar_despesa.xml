@@ -10,6 +10,12 @@
         android:layout_height="wrap_content">
 
         <EditText
+            android:id="@+id/editNome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nome" />
+
+        <EditText
             android:id="@+id/editDescricao"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,31 +32,38 @@
             android:id="@+id/editData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Data" />
+            android:hint="Data (AAAA-MM-DD)"
+            android:focusable="false" />
 
-        <EditText
+        <!-- Categoria -->
+        <AutoCompleteTextView
             android:id="@+id/editCategoria"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Categoria" />
+            android:hint="Categoria"
+            android:completionThreshold="1" />
 
-        <EditText
+        <!-- Método de Pagamento -->
+        <AutoCompleteTextView
             android:id="@+id/editMetodoPagamento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Método de Pagamento" />
+            android:hint="Método de Pagamento"
+            android:completionThreshold="1" />
 
         <Button
             android:id="@+id/btnSalvar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Salvar Alterações" />
+            android:text="Salvar Alterações"
+            android:layout_marginTop="16dp" />
 
         <Button
             android:id="@+id/btnExcluir"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Excluir Despesa"
-            android:textColor="@android:color/holo_red_dark" />
+            android:textColor="@android:color/holo_red_dark"
+            android:layout_marginTop="8dp" />
     </LinearLayout>
 </ScrollView>

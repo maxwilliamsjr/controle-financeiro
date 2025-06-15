@@ -27,6 +27,7 @@ class CategoriaActivity : AppCompatActivity() {
 
         btnSalvarCategoria.setOnClickListener {
             val nome = editNomeCategoria.text.toString().trim()
+
             if (nome.isEmpty()) {
                 Toast.makeText(this, "Informe o nome da categoria", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="24dp"
     android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/editNomeCategoria"
-        android:hint="Nome da Categoria"
+    <Button
+        android:id="@+id/btnCadastrarCategoria"
+        android:text="Cadastrar Categoria"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/btnSalvarCategoria"
-        android:text="Salvar Categoria"
+        android:id="@+id/btnListarCategorias"
+        android:text="Listar Categorias"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp" />

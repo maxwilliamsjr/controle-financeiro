@@ -27,7 +27,7 @@ class DespesaActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_despesa)
-        supportActionBar?.title = "Gerenciar Despesas"
+        supportActionBar?.title = "Cadastrar Despesa"
 
         firestore = FirebaseFirestore.getInstance()
 
@@ -44,27 +44,24 @@ class DespesaActivity : AppCompatActivity() {
         carregarCategorias()
         carregarMetodosPagamento()
 
-        // Desabilita teclado para editData e abre DatePicker ao clicar
         editData.inputType = android.text.InputType.TYPE_NULL
-        editData.setOnClickListener {
-            mostrarDatePicker()
-        }
+        editData.setOnClickListener { mostrarDatePicker() }
 
         btnSalvar.setOnClickListener {
             val id = UUID.randomUUID().toString()
-            val nome = editNome.text.toString()
-            val descricao = editDescricao.text.toString()
+            val nome = editNome.text.toString().trim()
+            val descricao = editDescricao.text.toString().trim()
             val valor = editValor.text.toString().toDoubleOrNull()
-            val data = editData.text.toString()
-            val categoria = autoCompleteCategoria.text.toString()
-            val metodo = autoCompleteMetodoPagamento.text.toString()
+            val data = editData.text.toString().trim()
+            val categoria = autoCompleteCategoria.text.toString().trim()
+            val metodo = autoCompleteMetodoPagamento.text.toString().trim()
 
             if (nome.isBlank() || valor == null || valor <= 0.0 || data.isBlank() || categoria.isBlank() || metodo.isBlank()) {
                 Toast.makeText(this, "Preencha todos os campos obrigatórios corretamente", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val despesa = Despesa(id, descricao, valor, data, categoria, metodo)
+            val despesa = Despesa(id, nome, descricao, valor, data, categoria, metodo)
 
             firestore.collection("despesas")
                 .document(id)
@@ -78,20 +75,17 @@ class DespesaActivity : AppCompatActivity() {
                 }
         }
 
-        // Clique no botão + categoria abre tela para cadastrar categoria
         btnAddCategoria.setOnClickListener {
-            startActivity(Intent(this, CadastroCategoriaActivity::class.java))
+            startActivity(Intent(this, com.example.controle_financeiro.ui.categoria.CategoriaActivity::class.java))
         }
 
-        // Clique no botão + método abre tela para cadastrar método de pagamento
         btnAddMetodoPagamento.setOnClickListener {
-            startActivity(Intent(this, CadastroMetodoPagamentoActivity::class.java))
+            startActivity(Intent(this, com.example.controle_financeiro.ui.metodopagamento.MetodoPagamentoActivity::class.java))
         }
     }
 
     override fun onResume() {
         super.onResume()
-        // Recarregar listas caso tenha cadastrado algo novo
         carregarCategorias()
         carregarMetodosPagamento()
     }
@@ -102,14 +96,10 @@ class DespesaActivity : AppCompatActivity() {
         val mes = calendario.get(Calendar.MONTH)
         val dia = calendario.get(Calendar.DAY_OF_MONTH)
 
-        val dpd = DatePickerDialog(this, { _, anoSelecionado, mesSelecionado, diaSelecionado ->
-            val mesFormatado = (mesSelecionado + 1).toString().padStart(2, '0')
-            val diaFormatado = diaSelecionado.toString().padStart(2, '0')
-            val dataFormatada = "$anoSelecionado-$mesFormatado-$diaFormatado"
-            editData.setText(dataFormatada)
-        }, ano, mes, dia)
-
-        dpd.show()
+        DatePickerDialog(this, { _, a, m, d ->
+            val data = String.format("%04d-%02d-%02d", a, m + 1, d)
+            editData.setText(data)
+        }, ano, mes, dia).show()
     }
 
     private fun carregarCategorias() {
@@ -117,11 +107,7 @@ class DespesaActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { result ->
                 val lista = result.documents.mapNotNull { it.getString("nomeCategoria") }
-                val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, lista)
-                autoCompleteCategoria.setAdapter(adapter)
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Erro ao carregar categorias", Toast.LENGTH_SHORT).show()
+                autoCompleteCategoria.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, lista))
             }
     }
 
@@ -130,11 +116,7 @@ class DespesaActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { result ->
                 val lista = result.documents.mapNotNull { it.getString("nomeMetodo") }
-                val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, lista)
-                autoCompleteMetodoPagamento.setAdapter(adapter)
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Erro ao carregar métodos de pagamento", Toast.LENGTH_SHORT).show()
+                autoCompleteMetodoPagamento.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, lista))
             }
     }
 }
