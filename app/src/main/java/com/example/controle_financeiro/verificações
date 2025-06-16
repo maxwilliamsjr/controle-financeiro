@@ -1,0 +1,34 @@
+1. Validação de campos obrigatórios:
+Todos os campos obrigatórios devem ser preenchidos antes de salvar qualquer item (ex: despesa, renda, categoria). Se não estiverem, deve exibir uma mensagem clara para o usuário.
+
+
+2. Validação e formatação de valor numérico:
+O campo de valor (ex: R$ 1.234,56) deve:
+
+Permitir apenas números.
+
+Formatar automaticamente com ponto para milhares e vírgula para centavos.
+
+Internamente, converter para Double corretamente (ex: "1.234,56" → 1234.56).
+
+
+3. DatePicker funcional e claro:
+O campo de data (como "data de recebimento" ou "data da despesa") deve usar o DatePickerDialog.
+
+A data deve ser exibida em formato legível (yyyy-MM-dd ou o que preferir).
+
+O campo deve ser clicável (mesmo que desabilitado para digitação direta).
+
+
+4. Scroll funcional para exibir todos os campos:
+As telas com muitos campos devem:
+
+Usar Column com verticalScroll.
+
+Garantir que o botão “Salvar” esteja sempre acessível, mesmo com o teclado aberto ou em telas pequenas.
+
+
+5. data de recebimento em cadastrar renda está cinza claro, diferente dos demais campos.
+
+
+6.

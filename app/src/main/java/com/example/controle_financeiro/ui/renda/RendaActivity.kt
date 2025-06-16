@@ -1,11 +1,16 @@
 package com.example.controle_financeiro.ui.renda
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,6 +21,7 @@ import com.example.controle_financeiro.model.Categoria
 import com.example.controle_financeiro.model.Periodicidade
 import com.example.controle_financeiro.model.Renda
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
 import java.util.*
 
 class RendaActivity : ComponentActivity() {
@@ -31,20 +37,54 @@ class RendaActivity : ComponentActivity() {
     @Composable
     fun RendaScreen() {
         val context = LocalContext.current
+        val scrollState = rememberScrollState()
+
         var tipo by remember { mutableStateOf("") }
         var fontePagadora by remember { mutableStateOf("") }
         var valor by remember { mutableStateOf("") }
         var dataRecebimento by remember { mutableStateOf("") }
         var categoria by remember { mutableStateOf("") }
         var descricao by remember { mutableStateOf("") }
+
         var diaFixo by remember { mutableStateOf("") }
         var mesInicio by remember { mutableStateOf("") }
+        var anoInicio by remember { mutableStateOf("") }
         var mesFim by remember { mutableStateOf("") }
+        var anoFim by remember { mutableStateOf("") }
+
+        val calendar = Calendar.getInstance()
+        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        fun showDatePicker() {
+            DatePickerDialog(
+                context,
+                { _, year, month, dayOfMonth ->
+                    calendar.set(year, month, dayOfMonth)
+                    dataRecebimento = dateFormatter.format(calendar.time)
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
+        fun calcularMesesPeriodicidade(): Int? {
+            val mi = mesInicio.toIntOrNull()
+            val ai = anoInicio.toIntOrNull()
+            val mf = mesFim.toIntOrNull()
+            val af = anoFim.toIntOrNull()
+            if (mi != null && ai != null && mf != null && af != null) {
+                val meses = (af - ai) * 12 + (mf - mi) + 1
+                return if (meses >= 0) meses else null
+            }
+            return null
+        }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(24.dp)
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text("Cadastrar Renda", style = MaterialTheme.typography.headlineSmall)
@@ -65,18 +105,38 @@ class RendaActivity : ComponentActivity() {
 
             OutlinedTextField(
                 value = valor,
-                onValueChange = { valor = it },
+                onValueChange = { input ->
+                    val cleanInput = input.replace("[^\\d]".toRegex(), "")
+                    valor = if (cleanInput.isNotEmpty()) {
+                        val parsed = cleanInput.toDouble() / 100
+                        String.format("%,.2f", parsed)
+                    } else ""
+                },
                 label = { Text("Valor") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = dataRecebimento,
-                onValueChange = { dataRecebimento = it },
-                label = { Text("Data de Recebimento (YYYY-MM-DD)") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            val interactionSource = remember { MutableInteractionSource() }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        showDatePicker()
+                    }
+            ) {
+                OutlinedTextField(
+                    value = dataRecebimento,
+                    onValueChange = {},
+                    label = { Text("Data de Recebimento") },
+                    enabled = false,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             OutlinedTextField(
                 value = categoria,
@@ -93,7 +153,7 @@ class RendaActivity : ComponentActivity() {
             )
 
             Divider()
-            Text("Periodicidade", style = MaterialTheme.typography.bodyLarge)
+            Text("Periodicidade", style = MaterialTheme.typography.titleMedium)
 
             OutlinedTextField(
                 value = diaFixo,
@@ -112,6 +172,14 @@ class RendaActivity : ComponentActivity() {
             )
 
             OutlinedTextField(
+                value = anoInicio,
+                onValueChange = { anoInicio = it },
+                label = { Text("Ano de Início") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
                 value = mesFim,
                 onValueChange = { mesFim = it },
                 label = { Text("Mês de Fim (1-12)") },
@@ -119,35 +187,67 @@ class RendaActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Button(onClick = {
-                if (tipo.isBlank() || fontePagadora.isBlank() || valor.isBlank() || dataRecebimento.isBlank() || categoria.isBlank()) {
-                    Toast.makeText(context, "Preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
+            OutlinedTextField(
+                value = anoFim,
+                onValueChange = { anoFim = it },
+                label = { Text("Ano de Fim") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                val renda = Renda(
-                    id = UUID.randomUUID().toString(),
-                    tipo = tipo,
-                    fontePagadora = fontePagadora,
-                    valor = valor.toDouble(),
-                    dataRecebimento = dataRecebimento,
-                    categoria = Categoria(id = "", nome = categoria, descricao = ""),
-                    descricao = descricao,
-                    periodicidade = Periodicidade(
-                        diaFixo = diaFixo.toIntOrNull() ?: 1,
-                        mesInicio = mesInicio.toIntOrNull(),
-                        mesFim = mesFim.toIntOrNull()
-                    )
+            val mesesPeriodicidade = calcularMesesPeriodicidade()
+            if (mesesPeriodicidade != null) {
+                Text("Periodicidade: $mesesPeriodicidade meses", style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Text(
+                    "Informe mês e ano de início e fim válidos",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
                 )
+            }
 
-                firestore.collection("rendas").document(renda.id).set(renda)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Renda cadastrada com sucesso", Toast.LENGTH_SHORT).show()
+            Button(
+                onClick = {
+                    if (tipo.isBlank() || fontePagadora.isBlank() || valor.isBlank() || dataRecebimento.isBlank() || categoria.isBlank()) {
+                        Toast.makeText(context, "Preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show()
+                        return@Button
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Erro ao cadastrar", Toast.LENGTH_SHORT).show()
+
+                    val valorNumerico = valor.replace(".", "").replace(",", ".").toDoubleOrNull()
+                    if (valorNumerico == null) {
+                        Toast.makeText(context, "Valor inválido", Toast.LENGTH_SHORT).show()
+                        return@Button
                     }
-            }) {
+
+                    val diaFixoInt = diaFixo.toIntOrNull() ?: 1
+
+                    val renda = Renda(
+                        id = UUID.randomUUID().toString(),
+                        tipo = tipo,
+                        fontePagadora = fontePagadora,
+                        valor = valorNumerico,
+                        dataRecebimento = dataRecebimento,
+                        categoria = Categoria(id = "", nome = categoria, descricao = ""),
+                        descricao = descricao,
+                        periodicidade = Periodicidade(
+                            diaFixo = diaFixoInt,
+                            mesInicio = mesInicio.toIntOrNull(),
+                            anoInicio = anoInicio.toIntOrNull(),
+                            mesFim = mesFim.toIntOrNull(),
+                            anoFim = anoFim.toIntOrNull()
+                        )
+                    )
+
+                    firestore.collection("rendas").document(renda.id).set(renda)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Renda cadastrada com sucesso", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Erro ao cadastrar", Toast.LENGTH_SHORT).show()
+                        }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Salvar")
             }
         }

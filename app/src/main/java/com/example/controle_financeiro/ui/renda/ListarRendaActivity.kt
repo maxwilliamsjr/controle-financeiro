@@ -13,7 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.controle_financeiro.model.Renda
+import com.example.controle_financeiro.model.RendaSimplificada
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.controle_financeiro.ui.theme.ControlefinanceiroTheme
 
@@ -33,16 +33,47 @@ class ListarRendaActivity : ComponentActivity() {
 fun ListarRendaScreen() {
     val context = LocalContext.current
     val db = FirebaseFirestore.getInstance()
-    var rendas by remember { mutableStateOf<List<Renda>>(emptyList()) }
+    var rendas by remember { mutableStateOf<List<RendaSimplificada>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         db.collection("rendas")
             .get()
             .addOnSuccessListener { result ->
-                rendas = result.documents.mapNotNull { it.toObject(Renda::class.java) }
-            }
-            .addOnFailureListener {
-                // Trate erros aqui se desejar
+                rendas = result.documents.mapNotNull { doc ->
+                    try {
+                        val id = doc.getString("id") ?: return@mapNotNull null
+                        val tipo = doc.getString("tipo") ?: ""
+                        val fonte = doc.getString("fontePagadora") ?: ""
+                        val valor = doc.getDouble("valor") ?: 0.0
+                        val data = doc.getString("dataRecebimento") ?: ""
+                        val categoriaNome = doc.get("categoria.nome") as? String ?: ""
+                        val descricao = doc.getString("descricao")
+                        val periodicidade = doc.get("periodicidade") as? Map<*, *>
+
+                        val diaFixo = (periodicidade?.get("diaFixo") as? Long)?.toInt()
+                        val mesInicio = (periodicidade?.get("mesInicio") as? Long)?.toInt()
+                        val anoInicio = (periodicidade?.get("anoInicio") as? Long)?.toInt()
+                        val mesFim = (periodicidade?.get("mesFim") as? Long)?.toInt()
+                        val anoFim = (periodicidade?.get("anoFim") as? Long)?.toInt()
+
+                        RendaSimplificada(
+                            id = id,
+                            tipo = tipo,
+                            fontePagadora = fonte,
+                            valor = valor,
+                            dataRecebimento = data,
+                            categoriaNome = categoriaNome,
+                            descricao = descricao,
+                            diaFixo = diaFixo,
+                            mesInicio = mesInicio,
+                            anoInicio = anoInicio,
+                            mesFim = mesFim,
+                            anoFim = anoFim
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
             }
     }
 
@@ -78,12 +109,12 @@ fun ListarRendaScreen() {
                         Text("Fonte: ${renda.fontePagadora}")
                         Text("Valor: R$ %.2f".format(renda.valor))
                         Text("Data: ${renda.dataRecebimento}")
-                        Text("Categoria: ${renda.categoria.nome}")
+                        Text("Categoria: ${renda.categoriaNome}")
                         if (!renda.descricao.isNullOrBlank()) {
                             Text("Descrição: ${renda.descricao}")
                         }
-                        renda.periodicidade?.let { p ->
-                            Text("Periodicidade: Dia ${p.diaFixo}, de ${p.mesInicio ?: "início"} até ${p.mesFim ?: "fim"}")
+                        if (renda.diaFixo != null && renda.mesInicio != null && renda.mesFim != null) {
+                            Text("Periodicidade: Dia ${renda.diaFixo}, de ${renda.mesInicio} até ${renda.mesFim}")
                         }
                     }
                 }
