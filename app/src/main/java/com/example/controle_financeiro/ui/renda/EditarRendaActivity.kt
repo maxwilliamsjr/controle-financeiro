@@ -1,13 +1,18 @@
 package com.example.controle_financeiro.ui.renda
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -15,7 +20,10 @@ import androidx.compose.ui.unit.dp
 import com.example.controle_financeiro.model.Categoria
 import com.example.controle_financeiro.model.Periodicidade
 import com.example.controle_financeiro.model.Renda
+import com.example.controle_financeiro.ui.theme.ControlefinanceiroTheme
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EditarRendaActivity : ComponentActivity() {
     private val firestore = FirebaseFirestore.getInstance()
@@ -24,15 +32,36 @@ class EditarRendaActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val rendaId = intent.getStringExtra("rendaId")
         if (rendaId == null) {
-            finish() // fecha se não tiver id
+            finish()
             return
         }
 
         setContent {
-            EditarRendaScreen(rendaId)
+            ControlefinanceiroTheme {
+                EditarRendaScreen(rendaId)
+            }
         }
     }
 
+    // Função para formatar valor no padrão brasileiro (milhares com '.' e decimal com ',')
+    private fun formatarValor(valor: String): String {
+        // Remove tudo que não é número
+        val clean = valor.filter { it.isDigit() }
+        if (clean.isEmpty()) return ""
+
+        // Se tem menos que 3 dígitos, preenche com zeros à esquerda para sempre ter centavos
+        val padded = clean.padStart(3, '0')
+
+        val inteiro = padded.dropLast(2)
+        val decimal = padded.takeLast(2)
+
+        // Formata milhares com pontos
+        val inteiroFormatado = inteiro.reversed().chunked(3).joinToString(".").reversed()
+
+        return "$inteiroFormatado,$decimal"
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun EditarRendaScreen(rendaId: String) {
         val context = LocalContext.current
@@ -49,7 +78,33 @@ class EditarRendaActivity : ComponentActivity() {
 
         var isLoading by remember { mutableStateOf(true) }
 
-        // Busca a renda no Firestore uma vez
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        val openDatePicker = {
+            val year: Int
+            val month: Int
+            val day: Int
+            if (dataRecebimento.isNotEmpty()) {
+                try {
+                    val date = dateFormat.parse(dataRecebimento)
+                    calendar.time = date ?: Date()
+                } catch (e: Exception) {
+                    calendar.time = Date()
+                }
+            } else {
+                calendar.time = Date()
+            }
+            year = calendar.get(Calendar.YEAR)
+            month = calendar.get(Calendar.MONTH)
+            day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            DatePickerDialog(context, { _, y, m, d ->
+                calendar.set(y, m, d)
+                dataRecebimento = dateFormat.format(calendar.time)
+            }, year, month, day).show()
+        }
+
         LaunchedEffect(rendaId) {
             firestore.collection("rendas").document(rendaId).get()
                 .addOnSuccessListener { doc ->
@@ -57,13 +112,17 @@ class EditarRendaActivity : ComponentActivity() {
                     if (renda != null) {
                         tipo = renda.tipo
                         fontePagadora = renda.fontePagadora
-                        valor = renda.valor.toString()
+                        // Formata valor para mostrar formatado na UI
+                        valor = formatarValor(renda.valor.toString())
                         dataRecebimento = renda.dataRecebimento
                         categoria = renda.categoria.nome
                         descricao = renda.descricao ?: ""
                         diaFixo = renda.periodicidade?.diaFixo?.toString() ?: ""
                         mesInicio = renda.periodicidade?.mesInicio?.toString() ?: ""
                         mesFim = renda.periodicidade?.mesFim?.toString() ?: ""
+                    } else {
+                        Toast.makeText(context, "Renda não encontrada", Toast.LENGTH_SHORT).show()
+                        (context as? ComponentActivity)?.finish()
                     }
                     isLoading = false
                 }
@@ -74,7 +133,10 @@ class EditarRendaActivity : ComponentActivity() {
         }
 
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
             return
@@ -104,7 +166,10 @@ class EditarRendaActivity : ComponentActivity() {
 
             OutlinedTextField(
                 value = valor,
-                onValueChange = { valor = it },
+                onValueChange = {
+                    // Atualiza valor já formatado ao digitar
+                    valor = formatarValor(it)
+                },
                 label = { Text("Valor") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
@@ -112,9 +177,21 @@ class EditarRendaActivity : ComponentActivity() {
 
             OutlinedTextField(
                 value = dataRecebimento,
-                onValueChange = { dataRecebimento = it },
-                label = { Text("Data de Recebimento (YYYY-MM-DD)") },
-                modifier = Modifier.fillMaxWidth()
+                onValueChange = { /* Não permite edição manual */ },
+                label = { Text("Data de Recebimento") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { openDatePicker() },
+                readOnly = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(), // Usa cores padrão para ficar normal
+                trailingIcon = {
+                    IconButton(onClick = { openDatePicker() }) {
+                        Icon(
+                            imageVector = Icons.Filled.DateRange,
+                            contentDescription = "Selecionar Data"
+                        )
+                    }
+                }
             )
 
             OutlinedTextField(
@@ -158,35 +235,46 @@ class EditarRendaActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Button(onClick = {
-                if (tipo.isBlank() || fontePagadora.isBlank() || valor.isBlank() || dataRecebimento.isBlank() || categoria.isBlank()) {
-                    Toast.makeText(context, "Preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
+            Button(
+                onClick = {
+                    if (tipo.isBlank() || fontePagadora.isBlank() || valor.isBlank() || dataRecebimento.isBlank() || categoria.isBlank()) {
+                        Toast.makeText(context, "Preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
 
-                val rendaEditada = Renda(
-                    id = rendaId,
-                    tipo = tipo,
-                    fontePagadora = fontePagadora,
-                    valor = valor.toDouble(),
-                    dataRecebimento = dataRecebimento,
-                    categoria = Categoria(id = "", nome = categoria, descricao = ""),
-                    descricao = descricao,
-                    periodicidade = Periodicidade(
-                        diaFixo = diaFixo.toIntOrNull() ?: 1,
-                        mesInicio = mesInicio.toIntOrNull(),
-                        mesFim = mesFim.toIntOrNull()
+                    // Converter o valor formatado para Double
+                    val valorDouble = valor.replace(".", "").replace(",", ".").toDoubleOrNull()
+                    if (valorDouble == null) {
+                        Toast.makeText(context, "Valor inválido", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    val rendaEditada = Renda(
+                        id = rendaId,
+                        tipo = tipo,
+                        fontePagadora = fontePagadora,
+                        valor = valorDouble,
+                        dataRecebimento = dataRecebimento,
+                        categoria = Categoria(id = "", nome = categoria, descricao = ""),
+                        descricao = descricao,
+                        periodicidade = Periodicidade(
+                            diaFixo = diaFixo.toIntOrNull() ?: 1,
+                            mesInicio = mesInicio.toIntOrNull(),
+                            mesFim = mesFim.toIntOrNull()
+                        )
                     )
-                )
 
-                firestore.collection("rendas").document(rendaId).set(rendaEditada)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Renda atualizada com sucesso", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
-                    }
-            }) {
+                    firestore.collection("rendas").document(rendaId).set(rendaEditada)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Renda atualizada com sucesso", Toast.LENGTH_SHORT).show()
+                            (context as? ComponentActivity)?.finish()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Erro ao atualizar", Toast.LENGTH_SHORT).show()
+                        }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Salvar Alterações")
             }
         }
