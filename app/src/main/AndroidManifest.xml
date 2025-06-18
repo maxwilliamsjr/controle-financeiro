@@ -55,7 +55,7 @@
         <activity android:name=".ui.metodopagamento.MenuMetodoPagamentoActivity" />
         <activity android:name=".ui.metodopagamento.CadastrarCartaoActivity" />
         <activity android:name=".ui.metodopagamento.ListarMetodoPagamentoActivity" />
-        <activity android:name=".ui.metodopagamento.EditarMetodoPagamentoActivity" />
+        <activity android:name=".ui.metodopagamento.EditarCartaoActivity" />
 
         <!-- Gerenciar Rendas -->
         <activity android:name=".ui.renda.MenuRendaActivity" />

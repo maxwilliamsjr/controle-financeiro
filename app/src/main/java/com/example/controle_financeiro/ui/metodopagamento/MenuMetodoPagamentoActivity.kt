@@ -9,7 +9,7 @@ import com.example.controle_financeiro.R
 class MenuMetodoPagamentoActivity : AppCompatActivity() {
 
     private lateinit var btnListarMetodos: Button
-    private lateinit var btnCadastrarMetodo: Button
+    private lateinit var btnCadastrarCartao: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,13 +17,13 @@ class MenuMetodoPagamentoActivity : AppCompatActivity() {
         supportActionBar?.title = "Menu Método de Pagamento"
 
         btnListarMetodos = findViewById(R.id.btnListarMetodos)
-        btnCadastrarMetodo = findViewById(R.id.btnCadastrarMetodo)
+        btnCadastrarCartao = findViewById(R.id.btnCadastrarCartao)
 
         btnListarMetodos.setOnClickListener {
             startActivity(Intent(this, ListarMetodoPagamentoActivity::class.java))
         }
 
-        btnCadastrarMetodo.setOnClickListener {
+        btnCadastrarCartao.setOnClickListener {
             startActivity(Intent(this, CadastrarCartaoActivity::class.java))
         }
     }

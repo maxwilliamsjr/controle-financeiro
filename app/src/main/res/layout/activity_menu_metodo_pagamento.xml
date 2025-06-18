@@ -6,8 +6,8 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/btnCadastrarMetodo"
-        android:text="Cadastrar Método de Pagamento"
+        android:id="@+id/btnCadastrarCartao"
+        android:text="Cadastrar Cartão"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp" />

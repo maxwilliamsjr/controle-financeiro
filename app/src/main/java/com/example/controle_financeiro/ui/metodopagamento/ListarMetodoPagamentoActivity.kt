@@ -8,16 +8,19 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.controle_financeiro.R
-import com.example.controle_financeiro.model.MetodoPagamento
+import com.example.controle_financeiro.model.Cartao
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ListarMetodoPagamentoActivity : AppCompatActivity() {
 
     private lateinit var listViewMetodos: ListView
     private val firestore = FirebaseFirestore.getInstance()
-    private val listaMetodos = mutableListOf<MetodoPagamento>()
+
+    private val metodosFixos = listOf("Pix", "Boleto", "Transferência", "Dinheiro", "Débito automático")
+    private val listaMetodosExibicao = mutableListOf<String>()
+    private val listaCartoes = mutableListOf<Cartao>()
+
     private lateinit var adapter: ArrayAdapter<String>
-    private val listaNomesMetodos = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,39 +28,58 @@ class ListarMetodoPagamentoActivity : AppCompatActivity() {
         supportActionBar?.title = "Métodos de Pagamento"
 
         listViewMetodos = findViewById(R.id.listViewMetodos)
-
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listaNomesMetodos)
+        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, listaMetodosExibicao)
         listViewMetodos.adapter = adapter
 
         carregarMetodos()
 
         listViewMetodos.setOnItemClickListener { _, _, position, _ ->
-            val metodoSelecionado = listaMetodos[position]
-            val intent = Intent(this, EditarMetodoPagamentoActivity::class.java).apply {
-                putExtra("id", metodoSelecionado.id)
-                putExtra("nomeMetodo", metodoSelecionado.nome)
+            val itemSelecionado = listaMetodosExibicao[position]
+
+            if (metodosFixos.contains(itemSelecionado)) {
+                Toast.makeText(this, "'$itemSelecionado' é um método fixo e não pode ser editado", Toast.LENGTH_SHORT).show()
+            } else {
+                val cartaoSelecionado = listaCartoes.find { it.nome == itemSelecionado }
+                if (cartaoSelecionado != null) {
+                    val intent = Intent(this, EditarCartaoActivity::class.java).apply {
+                        putExtra("id", cartaoSelecionado.id)
+                        putExtra("nome", cartaoSelecionado.nome)
+                        putExtra("banco", cartaoSelecionado.banco)
+                        putExtra("tipo", cartaoSelecionado.tipo)
+                        putExtra("vencimento", cartaoSelecionado.vencimento)
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "Erro: cartão não encontrado.", Toast.LENGTH_SHORT).show()
+                }
             }
-            startActivity(intent)
         }
     }
 
     private fun carregarMetodos() {
-        firestore.collection("metodosPagamento")
+        firestore.collection("cartoes")
             .get()
             .addOnSuccessListener { resultado ->
-                listaMetodos.clear()
-                listaNomesMetodos.clear()
+                listaCartoes.clear()
+                listaMetodosExibicao.clear()
+
+                listaMetodosExibicao.addAll(metodosFixos)
+
                 for (documento in resultado) {
                     val id = documento.getString("id") ?: ""
-                    val nome = documento.getString("nomeMetodo") ?: ""
-                    val metodo = MetodoPagamento(id, nome)
-                    listaMetodos.add(metodo)
-                    listaNomesMetodos.add(nome)
+                    val nome = documento.getString("nome") ?: ""
+                    val banco = documento.getString("banco") ?: ""
+                    val tipo = documento.getString("tipo") ?: "Crédito"
+                    val vencimento = documento.getString("vencimento") ?: ""
+
+                    val cartao = Cartao(id, nome, banco, tipo, vencimento)
+                    listaCartoes.add(cartao)
+                    listaMetodosExibicao.add(nome)
                 }
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Erro ao carregar métodos: ${it.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Erro ao carregar cartões: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }
