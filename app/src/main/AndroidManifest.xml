@@ -53,7 +53,7 @@
 
         <!-- Método de Pagamento -->
         <activity android:name=".ui.metodopagamento.MenuMetodoPagamentoActivity" />
-        <activity android:name=".ui.metodopagamento.MetodoPagamentoActivity" />
+        <activity android:name=".ui.metodopagamento.CadastrarCartaoActivity" />
         <activity android:name=".ui.metodopagamento.ListarMetodoPagamentoActivity" />
         <activity android:name=".ui.metodopagamento.EditarMetodoPagamentoActivity" />
 

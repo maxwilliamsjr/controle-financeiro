@@ -80,7 +80,7 @@ class DespesaActivity : AppCompatActivity() {
         }
 
         btnAddMetodoPagamento.setOnClickListener {
-            startActivity(Intent(this, com.example.controle_financeiro.ui.metodopagamento.MetodoPagamentoActivity::class.java))
+            startActivity(Intent(this, com.example.controle_financeiro.ui.metodopagamento.CadastrarCartaoActivity::class.java))
         }
     }
 

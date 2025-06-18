@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -30,11 +32,7 @@ class EditarRendaActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val rendaId = intent.getStringExtra("rendaId")
-        if (rendaId == null) {
-            finish()
-            return
-        }
+        val rendaId = intent.getStringExtra("rendaId") ?: return finish()
 
         setContent {
             ControlefinanceiroTheme {
@@ -43,21 +41,13 @@ class EditarRendaActivity : ComponentActivity() {
         }
     }
 
-    // Função para formatar valor no padrão brasileiro (milhares com '.' e decimal com ',')
     private fun formatarValor(valor: String): String {
-        // Remove tudo que não é número
         val clean = valor.filter { it.isDigit() }
         if (clean.isEmpty()) return ""
-
-        // Se tem menos que 3 dígitos, preenche com zeros à esquerda para sempre ter centavos
         val padded = clean.padStart(3, '0')
-
         val inteiro = padded.dropLast(2)
         val decimal = padded.takeLast(2)
-
-        // Formata milhares com pontos
         val inteiroFormatado = inteiro.reversed().chunked(3).joinToString(".").reversed()
-
         return "$inteiroFormatado,$decimal"
     }
 
@@ -65,6 +55,7 @@ class EditarRendaActivity : ComponentActivity() {
     @Composable
     fun EditarRendaScreen(rendaId: String) {
         val context = LocalContext.current
+        val scrollState = rememberScrollState()
 
         var tipo by remember { mutableStateOf("") }
         var fontePagadora by remember { mutableStateOf("") }
@@ -74,7 +65,9 @@ class EditarRendaActivity : ComponentActivity() {
         var descricao by remember { mutableStateOf("") }
         var diaFixo by remember { mutableStateOf("") }
         var mesInicio by remember { mutableStateOf("") }
+        var anoInicio by remember { mutableStateOf("") }
         var mesFim by remember { mutableStateOf("") }
+        var anoFim by remember { mutableStateOf("") }
 
         var isLoading by remember { mutableStateOf(true) }
 
@@ -82,22 +75,15 @@ class EditarRendaActivity : ComponentActivity() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         val openDatePicker = {
-            val year: Int
-            val month: Int
-            val day: Int
-            if (dataRecebimento.isNotEmpty()) {
-                try {
-                    val date = dateFormat.parse(dataRecebimento)
-                    calendar.time = date ?: Date()
-                } catch (e: Exception) {
-                    calendar.time = Date()
-                }
-            } else {
-                calendar.time = Date()
+            val date = try {
+                dateFormat.parse(dataRecebimento) ?: Date()
+            } catch (e: Exception) {
+                Date()
             }
-            year = calendar.get(Calendar.YEAR)
-            month = calendar.get(Calendar.MONTH)
-            day = calendar.get(Calendar.DAY_OF_MONTH)
+            calendar.time = date
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
 
             DatePickerDialog(context, { _, y, m, d ->
                 calendar.set(y, m, d)
@@ -112,14 +98,15 @@ class EditarRendaActivity : ComponentActivity() {
                     if (renda != null) {
                         tipo = renda.tipo
                         fontePagadora = renda.fontePagadora
-                        // Formata valor para mostrar formatado na UI
                         valor = formatarValor(renda.valor.toString())
                         dataRecebimento = renda.dataRecebimento
                         categoria = renda.categoria.nome
                         descricao = renda.descricao ?: ""
                         diaFixo = renda.periodicidade?.diaFixo?.toString() ?: ""
                         mesInicio = renda.periodicidade?.mesInicio?.toString() ?: ""
+                        anoInicio = renda.periodicidade?.anoInicio?.toString() ?: ""
                         mesFim = renda.periodicidade?.mesFim?.toString() ?: ""
+                        anoFim = renda.periodicidade?.anoFim?.toString() ?: ""
                     } else {
                         Toast.makeText(context, "Renda não encontrada", Toast.LENGTH_SHORT).show()
                         (context as? ComponentActivity)?.finish()
@@ -133,10 +120,7 @@ class EditarRendaActivity : ComponentActivity() {
         }
 
         if (isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
             return
@@ -145,7 +129,8 @@ class EditarRendaActivity : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(24.dp)
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text("Editar Renda", style = MaterialTheme.typography.headlineSmall)
@@ -166,10 +151,7 @@ class EditarRendaActivity : ComponentActivity() {
 
             OutlinedTextField(
                 value = valor,
-                onValueChange = {
-                    // Atualiza valor já formatado ao digitar
-                    valor = formatarValor(it)
-                },
+                onValueChange = { valor = formatarValor(it) },
                 label = { Text("Valor") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
@@ -177,19 +159,15 @@ class EditarRendaActivity : ComponentActivity() {
 
             OutlinedTextField(
                 value = dataRecebimento,
-                onValueChange = { /* Não permite edição manual */ },
+                onValueChange = {},
                 label = { Text("Data de Recebimento") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { openDatePicker() },
                 readOnly = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(), // Usa cores padrão para ficar normal
                 trailingIcon = {
                     IconButton(onClick = { openDatePicker() }) {
-                        Icon(
-                            imageVector = Icons.Filled.DateRange,
-                            contentDescription = "Selecionar Data"
-                        )
+                        Icon(Icons.Default.DateRange, contentDescription = "Selecionar Data")
                     }
                 }
             )
@@ -228,9 +206,25 @@ class EditarRendaActivity : ComponentActivity() {
             )
 
             OutlinedTextField(
+                value = anoInicio,
+                onValueChange = { anoInicio = it },
+                label = { Text("Ano de Início") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
                 value = mesFim,
                 onValueChange = { mesFim = it },
                 label = { Text("Mês de Fim (1-12)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = anoFim,
+                onValueChange = { anoFim = it },
+                label = { Text("Ano de Fim") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -242,7 +236,6 @@ class EditarRendaActivity : ComponentActivity() {
                         return@Button
                     }
 
-                    // Converter o valor formatado para Double
                     val valorDouble = valor.replace(".", "").replace(",", ".").toDoubleOrNull()
                     if (valorDouble == null) {
                         Toast.makeText(context, "Valor inválido", Toast.LENGTH_SHORT).show()
@@ -260,7 +253,9 @@ class EditarRendaActivity : ComponentActivity() {
                         periodicidade = Periodicidade(
                             diaFixo = diaFixo.toIntOrNull() ?: 1,
                             mesInicio = mesInicio.toIntOrNull(),
-                            mesFim = mesFim.toIntOrNull()
+                            anoInicio = anoInicio.toIntOrNull(),
+                            mesFim = mesFim.toIntOrNull(),
+                            anoFim = anoFim.toIntOrNull()
                         )
                     )
 

@@ -9,7 +9,7 @@ import com.example.controle_financeiro.R
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
-class MetodoPagamentoActivity : AppCompatActivity() {
+class CadastrarCartaoActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var editNomeMetodo: EditText

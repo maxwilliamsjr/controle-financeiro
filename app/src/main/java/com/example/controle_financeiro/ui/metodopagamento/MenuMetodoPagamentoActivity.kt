@@ -24,7 +24,7 @@ class MenuMetodoPagamentoActivity : AppCompatActivity() {
         }
 
         btnCadastrarMetodo.setOnClickListener {
-            startActivity(Intent(this, MetodoPagamentoActivity::class.java))
+            startActivity(Intent(this, CadastrarCartaoActivity::class.java))
         }
     }
 }
