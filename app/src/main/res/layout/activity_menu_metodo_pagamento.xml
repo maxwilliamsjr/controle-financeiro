@@ -5,6 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/txtMensagemMetodo"
+        android:text=""
+        android:textColor="@android:color/holo_green_dark"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
+
     <Button
         android:id="@+id/btnCadastrarCartao"
         android:text="Cadastrar Cartão"
@@ -17,5 +27,4 @@
         android:text="Listar Métodos de Pagamento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
 </LinearLayout>

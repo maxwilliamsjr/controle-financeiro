@@ -12,9 +12,47 @@
         <EditText
             android:id="@+id/editNomeCartao"
             android:hint="Nome do Cartão"
-            android:inputType="text"
+            android:inputType="textCapSentences"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/editBancoCartao"
+            android:hint="Banco"
+            android:inputType="textCapSentences"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <Spinner
+                android:id="@+id/spinnerTipo"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <Spinner
+                android:id="@+id/spinnerBandeira"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/editVencimento"
+            android:hint="Dia de vencimento da fatura (ex: 15)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false" />
 
         <Button
             android:id="@+id/btnSalvar"
@@ -32,5 +70,13 @@
             android:backgroundTint="@android:color/holo_red_dark"
             android:textColor="@android:color/white" />
 
+        <Button
+            android:id="@+id/btnCancelarCartao"
+            android:text="Cancelar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@android:color/darker_gray"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 </ScrollView>

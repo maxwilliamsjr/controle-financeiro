@@ -12,21 +12,23 @@
         <EditText
             android:id="@+id/editNome"
             android:hint="Nome"
+            android:inputType="textCapSentences"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/editDescricao"
             android:hint="Descrição"
+            android:inputType="textCapSentences"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/editValor"
-            android:hint="Valor"
-            android:inputType="numberDecimal"
+            android:hint="Valor (Ex: 1234,56)"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/editData"
@@ -35,7 +37,7 @@
             android:layout_height="wrap_content"
             android:focusable="false" />
 
-        <!-- Categoria com AutoComplete + botão + -->
+        <!-- Categoria -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,8 +50,18 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="Categoria"
-                android:inputType="text"
+                android:inputType="textCapSentences"
                 android:completionThreshold="1" />
+
+            <ImageButton
+                android:id="@+id/btnDropdownCategoria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Exibir categorias"
+                android:src="@android:drawable/arrow_down_float"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:layout_marginStart="4dp" />
 
             <ImageButton
                 android:id="@+id/btnAddCategoria"
@@ -59,10 +71,10 @@
                 android:src="@android:drawable/ic_input_add"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="4dp" />
         </LinearLayout>
 
-        <!-- Método de Pagamento com AutoComplete + botão + -->
+        <!-- Método de Pagamento -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -75,8 +87,18 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="Método de Pagamento"
-                android:inputType="text"
+                android:inputType="textCapSentences"
                 android:completionThreshold="1" />
+
+            <ImageButton
+                android:id="@+id/btnDropdownMetodo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Exibir métodos de pagamento"
+                android:src="@android:drawable/arrow_down_float"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:layout_marginStart="4dp" />
 
             <ImageButton
                 android:id="@+id/btnAddMetodoPagamento"
@@ -86,7 +108,7 @@
                 android:src="@android:drawable/ic_input_add"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="4dp" />
         </LinearLayout>
 
         <Button
@@ -95,5 +117,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/btnCancelar"
+            android:text="Cancelar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@android:color/holo_red_dark" />
     </LinearLayout>
 </ScrollView>

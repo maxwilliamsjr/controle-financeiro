@@ -4,63 +4,79 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.controle_financeiro.LoginActivity
 import com.example.controle_financeiro.ui.categoria.MenuCategoriaActivity
 import com.example.controle_financeiro.ui.despesa.MenuDespesasActivity
 import com.example.controle_financeiro.ui.metodopagamento.MenuMetodoPagamentoActivity
 import com.example.controle_financeiro.ui.planejamento.PlanejamentoActivity
-import com.example.controle_financeiro.ui.renda.MenuRendaActivity // <- atualizado aqui
+import com.example.controle_financeiro.ui.renda.MenuRendaActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, context: Context) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    context: Context,
+    uid: String
+) {
+    var nome by remember { mutableStateOf<String?>(null) }
+
+    // Buscar o nome do usuário no Firestore
+    LaunchedEffect(uid) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("usuarios").document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                val nomeCompleto = doc.getString("nome") ?: ""
+                nome = nomeCompleto.split(" ").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: ""
+            }
+            .addOnFailureListener {
+                nome = ""
+            }
+    }
+
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = modifier.padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "Bem-vindo ao controle financeiro")
+        Text(
+            text = "Bem-vindo ao controle financeiro${if (!nome.isNullOrEmpty()) ", $nome" else ""}!",
+            style = MaterialTheme.typography.titleMedium
+        )
 
         Button(onClick = {
-            val intent = Intent(context, MenuDespesasActivity::class.java)
-            context.startActivity(intent)
+            context.startActivity(Intent(context, MenuDespesasActivity::class.java))
         }) {
-            Text(text = "Gerenciar Despesas")
+            Text("Gerenciar Despesas")
         }
 
         Button(onClick = {
-            val intent = Intent(context, MenuRendaActivity::class.java) // <- corrigido aqui
-            context.startActivity(intent)
+            context.startActivity(Intent(context, MenuRendaActivity::class.java))
         }) {
-            Text(text = "Gerenciar Rendas")
+            Text("Gerenciar Rendas")
         }
 
         Button(onClick = {
-            val intent = Intent(context, PlanejamentoActivity::class.java)
-            context.startActivity(intent)
+            context.startActivity(Intent(context, PlanejamentoActivity::class.java))
         }) {
-            Text(text = "Planejamento Mensal")
+            Text("Planejamento Mensal")
         }
 
         Button(onClick = {
-            val intent = Intent(context, MenuCategoriaActivity::class.java)
-            context.startActivity(intent)
+            context.startActivity(Intent(context, MenuCategoriaActivity::class.java))
         }) {
-            Text(text = "Gerenciar Categorias")
+            Text("Gerenciar Categorias")
         }
 
         Button(onClick = {
-            val intent = Intent(context, MenuMetodoPagamentoActivity::class.java)
-            context.startActivity(intent)
+            context.startActivity(Intent(context, MenuMetodoPagamentoActivity::class.java))
         }) {
-            Text(text = "Gerenciar Métodos de Pagamento")
+            Text("Gerenciar Métodos de Pagamento")
         }
 
         Button(onClick = {
@@ -69,44 +85,7 @@ fun HomeScreen(modifier: Modifier = Modifier, context: Context) {
             context.startActivity(intent)
             (context as? Activity)?.finish()
         }) {
-            Text(text = "Sair")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(text = "Bem-vindo ao controle financeiro")
-
-        Button(onClick = { /* Preview, não faz nada */ }) {
-            Text(text = "Gerenciar Despesas")
-        }
-
-        Button(onClick = { }) {
-            Text(text = "Gerenciar Rendas")
-        }
-
-        Button(onClick = { }) {
-            Text(text = "Planejamento Mensal")
-        }
-
-        Button(onClick = { }) {
-            Text(text = "Gerenciar Categorias")
-        }
-
-        Button(onClick = { }) {
-            Text(text = "Gerenciar Métodos de Pagamento")
-        }
-
-        Button(onClick = { }) {
-            Text(text = "Sair")
+            Text("Sair")
         }
     }
 }

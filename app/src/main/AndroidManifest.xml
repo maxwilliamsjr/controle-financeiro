@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.controle_financeiro">
 
     <application
         android:allowBackup="true"
@@ -13,7 +14,7 @@
         android:theme="@style/Theme.Controlefinanceiro"
         tools:targetApi="31">
 
-        <!-- MainActivity usa Compose e tema Material3 -->
+        <!-- Tela principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -25,44 +26,39 @@
             </intent-filter>
         </activity>
 
-        <!-- Activities que usam AppCompat precisam de tema AppCompat -->
-        <activity
-            android:name="com.example.controle_financeiro.ui.despesa.DespesaActivity"
-            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
-        <activity
-            android:name="com.example.controle_financeiro.ui.renda.RendaActivity"
-            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
-        <activity
-            android:name="com.example.controle_financeiro.ui.planejamento.PlanejamentoActivity"
-            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
-
-        <!-- Login -->
+        <!-- Login e Cadastro -->
         <activity android:name=".LoginActivity" />
+        <activity android:name=".CadastroActivity" />
 
-        <!-- Despesa -->
-        <activity android:name=".ui.despesa.MenuDespesasActivity" />
-        <activity android:name=".ui.despesa.ListarDespesasActivity" />
-        <activity android:name=".ui.despesa.EditarDespesaActivity" />
-
-
-        <!-- Categoria -->
-        <activity android:name=".ui.categoria.MenuCategoriaActivity" />
+        <!-- Categorias -->
         <activity android:name=".ui.categoria.CategoriaActivity" />
-        <activity android:name=".ui.categoria.ListarCategoriaActivity" />
         <activity android:name=".ui.categoria.EditarCategoriaActivity" />
+        <activity android:name=".ui.categoria.ListarCategoriaActivity" />
+        <activity android:name=".ui.categoria.MenuCategoriaActivity" />
 
-        <!-- Método de Pagamento -->
-        <activity android:name=".ui.metodopagamento.MenuMetodoPagamentoActivity" />
+        <!-- Despesas -->
+        <activity android:name=".ui.despesa.DespesaActivity"
+            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
+        <activity android:name=".ui.despesa.EditarDespesaActivity" />
+        <activity android:name=".ui.despesa.ListarDespesasActivity" />
+        <activity android:name=".ui.despesa.MenuDespesasActivity" />
+
+        <!-- Métodos de Pagamento -->
         <activity android:name=".ui.metodopagamento.CadastrarCartaoActivity" />
-        <activity android:name=".ui.metodopagamento.ListarMetodoPagamentoActivity" />
         <activity android:name=".ui.metodopagamento.EditarCartaoActivity" />
+        <activity android:name=".ui.metodopagamento.ListarMetodoPagamentoActivity" />
+        <activity android:name=".ui.metodopagamento.MenuMetodoPagamentoActivity" />
 
-        <!-- Gerenciar Rendas -->
-        <activity android:name=".ui.renda.MenuRendaActivity" />
-        <activity android:name=".ui.renda.ListarRendaActivity" />
+        <!-- Planejamento -->
+        <activity android:name=".ui.planejamento.PlanejamentoActivity"
+            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
+
+        <!-- Renda -->
         <activity android:name=".ui.renda.EditarRendaActivity" />
-
+        <activity android:name=".ui.renda.ListarRendaActivity" />
+        <activity android:name=".ui.renda.MenuRendaActivity" />
+        <activity android:name=".ui.renda.RendaActivity"
+            android:theme="@style/Theme.Controlefinanceiro.AppCompat" />
 
     </application>
-
 </manifest>

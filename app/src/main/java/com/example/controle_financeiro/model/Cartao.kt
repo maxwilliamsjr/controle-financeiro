@@ -4,7 +4,9 @@ data class Cartao(
     val id: String = "",
     var nome: String = "",
     var banco: String = "",
-    var tipo: String = "", // "Crédito" ou "Débito"
-    var vencimento: String = "", // Ex: "15" (dia do vencimento)
-    var faturaAtual: Double = 0.0
+    var tipo: String = "",         // "Crédito" ou "Débito"
+    var vencimento: String = "",   // Ex: "15" (dia do vencimento)
+    var bandeira: String = "",     // Ex: "Visa", "Mastercard", etc.
+    var faturaAtual: Double = 0.0,
+    var dataFechamento: Int = 0    // Dia do fechamento da fatura (ex: 15)
 )

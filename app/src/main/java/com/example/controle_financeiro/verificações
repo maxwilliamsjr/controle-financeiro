@@ -32,3 +32,57 @@ Garantir que o botão “Salvar” esteja sempre acessível, mesmo com o teclado
 
 
 6. verificar banco de dados, não ta salvando
+
+7. 🧠 Dica de segurança: use regras do Firestore
+   Depois que tudo estiver funcionando, ative a seguinte regra no Firestore para proteger os dados:
+
+   plaintext
+   Copiar
+   Editar
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /usuarios/{userId} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+
+       match /{colecao=**}/{documento} {
+         allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;
+       }
+     }
+   }
+   Isso garante que usuários só possam acessar dados próprios.
+
+8. Quando não tiver nada cadastrado, mostrar que não há, isso vale para todas as telas
+
+
+9. proximo a fazer, os metodos fixos, pix e tals, já devem estar cadastrados como metodo de pagamentos
+   quando eu cadastro no + uma categoria, ele volta para a tela de cadastro de despesa
+   quando eu cadastro um cartão, ele volta para o menu dos metodos de pagamento, ai preciso voltar mais uma tela para ele regressar a tela de
+   cadastro de despesa
+   não to conseguindo selecionar os metodos de pagamento do cartão
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
