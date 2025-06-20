@@ -1,46 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:orientation="vertical"
-        android:padding="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <EditText
             android:id="@+id/editNome"
+            android:hint="Nome"
+            android:inputType="textCapSentences"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nome" />
+            android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/editDescricao"
+            android:hint="Descrição"
+            android:inputType="textCapSentences"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Descrição" />
+            android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/editValor"
+            android:hint="Valor (Ex: 1234,56)"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Valor"
             android:inputType="numberDecimal" />
 
         <EditText
             android:id="@+id/editData"
+            android:hint="Data (AAAA-MM-DD)"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Data (AAAA-MM-DD)"
             android:focusable="false" />
 
-        <!-- Linha Categoria com AutoCompleteTextView + botão dropdown -->
+        <!-- Categoria com dropdown e botão + -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="12dp">
 
             <AutoCompleteTextView
                 android:id="@+id/editCategoria"
@@ -48,25 +50,36 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="Categoria"
+                android:inputType="textCapSentences"
                 android:completionThreshold="1" />
 
             <ImageButton
                 android:id="@+id/btnDropdownCategoria"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="Exibir categorias"
                 android:src="@android:drawable/arrow_down_float"
-                android:contentDescription="Abrir categorias"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="4dp" />
+
+            <ImageButton
+                android:id="@+id/btnAddCategoria"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Adicionar Categoria"
+                android:src="@android:drawable/ic_input_add"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:layout_marginStart="4dp" />
         </LinearLayout>
 
-        <!-- Linha Método de Pagamento com AutoCompleteTextView + botão dropdown -->
+        <!-- Método de Pagamento -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="12dp">
 
             <AutoCompleteTextView
                 android:id="@+id/editMetodoPagamento"
@@ -74,32 +87,41 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="Método de Pagamento"
+                android:inputType="textCapSentences"
                 android:completionThreshold="1" />
 
             <ImageButton
                 android:id="@+id/btnDropdownMetodo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="Exibir métodos de pagamento"
                 android:src="@android:drawable/arrow_down_float"
-                android:contentDescription="Abrir métodos de pagamento"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="4dp" />
         </LinearLayout>
 
         <Button
             android:id="@+id/btnSalvar"
+            android:text="Salvar Alterações"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Salvar Alterações"
             android:layout_marginTop="16dp" />
 
         <Button
             android:id="@+id/btnExcluir"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text="Excluir Despesa"
             android:textColor="@android:color/holo_red_dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnCancelar"
+            android:text="Cancelar"
+            android:textColor="@android:color/darker_gray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
     </LinearLayout>
 </ScrollView>

@@ -1,14 +1,18 @@
 package com.example.controle_financeiro.ui.despesa
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.controle_financeiro.R
 import com.example.controle_financeiro.model.Despesa
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.NumberFormat
 import java.util.*
 
 class EditarDespesaActivity : AppCompatActivity() {
@@ -24,12 +28,16 @@ class EditarDespesaActivity : AppCompatActivity() {
     private lateinit var autoCompleteMetodoPagamento: AutoCompleteTextView
     private lateinit var btnSalvar: Button
     private lateinit var btnExcluir: Button
+    private lateinit var btnCancelar: Button
     private lateinit var btnDropdownCategoria: ImageButton
     private lateinit var btnDropdownMetodo: ImageButton
+    private lateinit var btnAddCategoria: ImageButton
 
     private var idDespesa: String? = null
     private val categorias = mutableListOf<String>()
     private val metodosPagamento = mutableListOf<String>()
+
+    private val metodosFixos = listOf("Pix", "Boleto", "Transferência", "Dinheiro", "Débito automático")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +55,10 @@ class EditarDespesaActivity : AppCompatActivity() {
         autoCompleteMetodoPagamento = findViewById(R.id.editMetodoPagamento)
         btnSalvar = findViewById(R.id.btnSalvar)
         btnExcluir = findViewById(R.id.btnExcluir)
-
-        // Os botões para dropdown na edição devem estar no layout para usar (adicione se não tiver)
-        btnDropdownCategoria = findViewById(R.id.btnDropdownCategoria) // verifique se tem no xml
-        btnDropdownMetodo = findViewById(R.id.btnDropdownMetodo)       // verifique se tem no xml
+        btnCancelar = findViewById(R.id.btnCancelar)
+        btnDropdownCategoria = findViewById(R.id.btnDropdownCategoria)
+        btnDropdownMetodo = findViewById(R.id.btnDropdownMetodo)
+        btnAddCategoria = findViewById(R.id.btnAddCategoria)
 
         idDespesa = intent.getStringExtra("ID_DESPESA")
 
@@ -60,19 +68,54 @@ class EditarDespesaActivity : AppCompatActivity() {
             return
         }
 
-        carregarCategorias()
-        carregarMetodosPagamento()
-
         editData.inputType = android.text.InputType.TYPE_NULL
         editData.setOnClickListener { mostrarDatePicker() }
 
         btnDropdownCategoria.setOnClickListener { autoCompleteCategoria.showDropDown() }
         btnDropdownMetodo.setOnClickListener { autoCompleteMetodoPagamento.showDropDown() }
 
+        btnAddCategoria.setOnClickListener {
+            startActivity(Intent(this, com.example.controle_financeiro.ui.categoria.CategoriaActivity::class.java))
+        }
+
+        editValor.addTextChangedListener(object : TextWatcher {
+            private var current = ""
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (s.toString() != current) {
+                    editValor.removeTextChangedListener(this)
+
+                    val cleanString = s.toString().replace("[R$,.\\s]".toRegex(), "")
+                    if (cleanString.isNotEmpty()) {
+                        val parsed = cleanString.toDouble() / 100
+                        val formatted = NumberFormat.getCurrencyInstance(Locale("pt", "BR")).format(parsed)
+                        current = formatted
+                        editValor.setText(formatted)
+                        editValor.setSelection(formatted.length)
+                    } else {
+                        current = ""
+                        editValor.setText("")
+                    }
+
+                    editValor.addTextChangedListener(this)
+                }
+            }
+        })
+
+        carregarCategorias()
+        carregarMetodosPagamento()
         carregarDespesa()
 
         btnSalvar.setOnClickListener { atualizarDespesa() }
         btnExcluir.setOnClickListener { excluirDespesa() }
+        btnCancelar.setOnClickListener { finish() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        carregarCategorias()
+        carregarMetodosPagamento()
     }
 
     private fun mostrarDatePicker() {
@@ -99,11 +142,22 @@ class EditarDespesaActivity : AppCompatActivity() {
     }
 
     private fun carregarMetodosPagamento() {
-        firestore.collection("metodosPagamento")
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("cartoes")
+            .whereEqualTo("userId", userId)
             .get()
-            .addOnSuccessListener { result ->
+            .addOnSuccessListener { resultado ->
                 metodosPagamento.clear()
-                metodosPagamento.addAll(result.documents.mapNotNull { it.getString("nomeMetodo") })
+                metodosPagamento.addAll(metodosFixos)
+
+                for (doc in resultado) {
+                    val nome = doc.getString("nome") ?: continue
+                    val tipo = doc.getString("tipo") ?: ""
+                    val nomeComposto = "$nome $tipo"
+                    metodosPagamento.add(nomeComposto)
+                }
+
                 val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, metodosPagamento)
                 autoCompleteMetodoPagamento.setAdapter(adapter)
             }
@@ -118,7 +172,10 @@ class EditarDespesaActivity : AppCompatActivity() {
                 if (despesa != null && despesa.userId == userId) {
                     editNome.setText(despesa.nome)
                     editDescricao.setText(despesa.descricao)
-                    editValor.setText(despesa.valor.toString())
+
+                    val valorFormatado = NumberFormat.getCurrencyInstance(Locale("pt", "BR")).format(despesa.valor)
+                    editValor.setText(valorFormatado)
+
                     editData.setText(despesa.data)
                     autoCompleteCategoria.setText(despesa.categoria, false)
                     autoCompleteMetodoPagamento.setText(despesa.metodoPagamento, false)
@@ -141,7 +198,8 @@ class EditarDespesaActivity : AppCompatActivity() {
 
         val nome = editNome.text.toString().trim()
         val descricao = editDescricao.text.toString().trim()
-        val valor = editValor.text.toString().toDoubleOrNull() ?: 0.0
+        val valorStr = editValor.text.toString().replace("[R$,.\\s]".toRegex(), "")
+        val valor = valorStr.toDoubleOrNull()?.div(100) ?: 0.0
         val data = editData.text.toString().trim()
         val categoria = autoCompleteCategoria.text.toString().trim()
         val metodo = autoCompleteMetodoPagamento.text.toString().trim()
